@@ -85,12 +85,12 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
         function get_rules_from_run(run) {
           var _a, _b, _c;
           const extensions = [];
+          let ext_rules = [];
+          for (const rule of ((_c = (_b = run.tool) === null || _b === void 0 ? void 0 : _b.driver) === null || _c === void 0 ? void 0 : _c.rules) || []) {
+            ext_rules.push(rule.id);
+          }
+          extensions.push(ext_rules);
           for (const ext of ((_a = run.tool) === null || _a === void 0 ? void 0 : _a.extensions) || []) {
-            let ext_rules = [];
-            for (const rule of ((_c = (_b = run.tool) === null || _b === void 0 ? void 0 : _b.driver) === null || _c === void 0 ? void 0 : _c.rules) || []) {
-              ext_rules.push(rule.id);
-            }
-            extensions.push(ext_rules);
             ext_rules = [];
             for (const rule of ext.rules || []) {
               ext_rules.push(rule.id);
@@ -100,7 +100,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           return extensions;
         }
         function filter_alerts(should_be_dismissed, predicate, sarif) {
-          console.debug("Suppressed alerts in local file: " + JSON.stringify(should_be_dismissed));
+          //console.debug("Suppressed alerts in local file: " + JSON.stringify(should_be_dismissed));
           const alerts = [];
           let rules;
           for (const run of sarif.runs) {
@@ -153,9 +153,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
             for (const result of run.results || []) {
               console.log(`Suppressions for rule ${result.ruleId}: ${JSON.stringify(result.suppressions)}`);
               if (result.suppressions != null && result.suppressions.length > 0) {
+                console.log(`Adding to suppressed record: ${alert_identifier(rules, result)}`);
                 suppressed.add(alert_identifier(rules, result));
               }
               else {
+                console.log(`Adding to normal record: ${alert_identifier(rules, result)}`);
                 normal.add(alert_identifier(rules, result));
               }
             }
@@ -221,9 +223,9 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
               headers: { Accept: "application/sarif+json" },
             });
             const sarif2 = response2.data;
-            console.debug("Fresh analysis: " + JSON.stringify(sarif2));
+            //console.debug("Fresh analysis: " + JSON.stringify(sarif2));
             const sarif1 = JSON.parse(fs.readFileSync(sarif, "utf8"));
-            console.debug("Local SARIF file contents: " + JSON.stringify(sarif1));
+            //console.debug("Local SARIF file contents: " + JSON.stringify(sarif1));
             const [normal, suppressed] = split_alerts(sarif1);
             console.debug("Alerts suppressed in local file: " + JSON.stringify(suppressed));
             console.debug("Alerts not suppressed in local file: " + JSON.stringify(normal));
