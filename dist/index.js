@@ -229,7 +229,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
             const [normal, suppressed] = split_alerts(sarif1);
             console.debug("Alerts suppressed in local file: " + JSON.stringify(Array.from(suppressed)));
             console.debug("Alerts not suppressed in local file: " + JSON.stringify(Array.from(normal)));
-            const response3 = yield client.paginate(client.rest.codeScanning.listAlertsForRepo(Object.assign(Object.assign({}, nwo), { state: "dismissed" })));
+            const response3 = yield client.paginate(client.rest.codeScanning.listAlertsForRepo, Object.assign(Object.assign({}, nwo), { state: "dismissed" }));
             const dismissed_alerts = new Map(response3.data.map((x) => [x.url, x.dismissed_comment || undefined]));
             console.debug("Alerts currently dismissed via API: " + [...dismissed_alerts.keys()].join(", "));
             const to_dismiss = filter_alerts(suppressed, (alertUrl) => !dismissed_alerts.has(alertUrl), sarif2);
