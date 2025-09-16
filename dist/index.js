@@ -105,6 +105,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           let rules;
           for (const run of sarif.runs) {
             rules = get_rules_from_run(run);
+            console.debug("Evaluating rules for suppression: " + JSON.stringify(rules));
             for (const result of run.results || []) {
               const properties = result.properties;
               console.debug(" Checking alert: " + alert_identifier(rules, result));
@@ -148,6 +149,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           const suppressed = new Set();
           for (const run of sarif.runs) {
             const rules = get_rules_from_run(run);
+            console.debug("Evaluating rules for suppression: " + JSON.stringify(rules));
             for (const result of run.results || []) {
               console.log(`Suppressions for rule ${result.ruleId}: ${JSON.stringify(result.suppressions)}`);
               if (result.suppressions != null && result.suppressions.length > 0) {
