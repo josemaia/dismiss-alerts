@@ -149,6 +149,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           for (const run of sarif.runs) {
             const rules = get_rules_from_run(run);
             for (const result of run.results || []) {
+              console.log(`Suppressions for rule ${result.ruleId}: ${JSON.stringify(result.suppressions)}`);
               if (result.suppressions != null && result.suppressions.length > 0) {
                 suppressed.add(alert_identifier(rules, result));
               }
@@ -218,13 +219,15 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
               headers: { Accept: "application/sarif+json" },
             });
             const sarif2 = response2.data;
+            console.debug("Fresh analysis: " + JSON.stringify(sarif2));
             const sarif1 = JSON.parse(fs.readFileSync(sarif, "utf8"));
+            console.debug("Local SARIF file contents: " + JSON.stringify(sarif1));
             const [normal, suppressed] = split_alerts(sarif1);
             console.debug("Alerts suppressed in local file: " + JSON.stringify(suppressed));
             console.debug("Alerts not suppressed in local file: " + JSON.stringify(normal));
             const response3 = yield client.rest.codeScanning.listAlertsForRepo(Object.assign(Object.assign({}, nwo), { state: "dismissed" }));
             const dismissed_alerts = new Map(response3.data.map((x) => [x.url, x.dismissed_comment || undefined]));
-            console.debug("Alerts currently dismissed: " + [...dismissed_alerts.keys()].join(", "));
+            // console.debug("Alerts currently dismissed via API: " + [...dismissed_alerts.keys()].join(", "));
             const to_dismiss = filter_alerts(suppressed, (alertUrl) => !dismissed_alerts.has(alertUrl), sarif2);
             for (const alert of to_dismiss) {
               console.debug(`Dismissing alert: ${alert}`);
