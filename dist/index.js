@@ -100,7 +100,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           return extensions;
         }
         function filter_alerts(should_be_dismissed, predicate, sarif) {
-          console.debug("Suppressed alerts in local file: " + should_be_dismissed.join(", "));
+          console.debug("Suppressed alerts in local file: " + JSON.stringify(should_be_dismissed));
           const alerts = [];
           let rules;
           for (const run of sarif.runs) {
@@ -110,7 +110,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
               console.debug(" Checking alert: " + alert_identifier(rules, result));
               if (should_be_dismissed.has(alert_identifier(rules, result))) {
                 if (properties != null) {
-                  console.debug("Alert properties: " + properties);
+                  console.debug("Alert properties: " + JSON.stringify(properties));
                   const alertUrl = properties["github/alertUrl"];
                   if (predicate(alertUrl)) {
                     console.debug("Readying alert for dismissal: " + alertUrl);
@@ -220,8 +220,8 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
             const sarif2 = response2.data;
             const sarif1 = JSON.parse(fs.readFileSync(sarif, "utf8"));
             const [normal, suppressed] = split_alerts(sarif1);
-            console.debug("Alerts suppressed in local file: " + suppressed);
-            console.debug("Alerts not suppressed in local file: " + normal);
+            console.debug("Alerts suppressed in local file: " + JSON.stringify(suppressed));
+            console.debug("Alerts not suppressed in local file: " + JSON.stringify(normal));
             const response3 = yield client.rest.codeScanning.listAlertsForRepo(Object.assign(Object.assign({}, nwo), { state: "dismissed" }));
             const dismissed_alerts = new Map(response3.data.map((x) => [x.url, x.dismissed_comment || undefined]));
             console.debug("Alerts currently dismissed: " + [...dismissed_alerts.keys()].join(", "));
