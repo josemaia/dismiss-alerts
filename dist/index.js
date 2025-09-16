@@ -100,12 +100,12 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           return extensions;
         }
         function filter_alerts(should_be_dismissed, predicate, sarif) {
-          //console.debug("Suppressed alerts in local file: " + JSON.stringify(should_be_dismissed));
+          console.debug("Alerts to filter by: " + JSON.stringify(Array.from(should_be_dismissed)));
           const alerts = [];
           let rules;
           for (const run of sarif.runs) {
             rules = get_rules_from_run(run);
-            console.debug("Evaluating rules for suppression: " + JSON.stringify(rules));
+            console.debug("Evaluating rules for filtering : " + JSON.stringify(rules));
             for (const result of run.results || []) {
               const properties = result.properties;
               console.debug(" Checking alert: " + alert_identifier(rules, result));
@@ -141,7 +141,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
           const physicalLocation = result.locations[0].physicalLocation;
           const filePath = physicalLocation.artifactLocation.uri;
           const startLine = ((_a = physicalLocation.region) === null || _a === void 0 ? void 0 : _a.startLine) || 0;
-          const startColumn = ((_b = physicalLocation.region) === null || _b === void 0 ? void 0 : _b.startColumn) || 0;
+          const startColumn = ((_b = physicalLocation.region) === null || _b === void 0 ? void 0 : _b.startColumn) || 1;
           return [ruleId, filePath, startLine, startColumn].join(";");
         }
         function split_alerts(sarif) {
@@ -227,8 +227,8 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
             const sarif1 = JSON.parse(fs.readFileSync(sarif, "utf8"));
             //console.debug("Local SARIF file contents: " + JSON.stringify(sarif1));
             const [normal, suppressed] = split_alerts(sarif1);
-            console.debug("Alerts suppressed in local file: " + JSON.stringify(suppressed));
-            console.debug("Alerts not suppressed in local file: " + JSON.stringify(normal));
+            console.debug("Alerts suppressed in local file: " + JSON.stringify(Array.from(suppressed)));
+            console.debug("Alerts not suppressed in local file: " + JSON.stringify(Array.from(normal)));
             const response3 = yield client.rest.codeScanning.listAlertsForRepo(Object.assign(Object.assign({}, nwo), { state: "dismissed" }));
             const dismissed_alerts = new Map(response3.data.map((x) => [x.url, x.dismissed_comment || undefined]));
             // console.debug("Alerts currently dismissed via API: " + [...dismissed_alerts.keys()].join(", "));
